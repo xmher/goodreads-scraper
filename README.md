@@ -1,9 +1,10 @@
 # Goodreads Scraper with Automated Scheduling
 
-A comprehensive web scraper for Goodreads that automatically collects book information, reviews, ratings, and metadata. Includes automated scheduling to capture new books as they're released.
+A comprehensive, all-in-one web scraper for Goodreads that automatically collects book information, reviews, ratings, and metadata. Includes automated scheduling to capture new books as they're released.
 
 ## Features
 
+- **Unified Script**: Single `main.py` script handles all operations
 - **Web Scraping**: Scrapes book details, reviews, ratings, star distributions, and awards from Goodreads
 - **Database Storage**: Stores data in PostgreSQL database
 - **Review Enhancement**: Automatically collects additional reviews for popular books
@@ -44,147 +45,159 @@ A comprehensive web scraper for Goodreads that automatically collects book infor
 
 4. **Update database configuration**
 
-   Edit the `DB_CONFIG` in the following files to match your PostgreSQL credentials:
-   - `noapi.py`
-   - `remaining_reviews.py`
-   - `update_authors.py`
-
-   ```python
-   DB_CONFIG = {
-       "host": "localhost",
-       "database": "my_goodreads_db",
-       "user": "your_username",
-       "password": "your_password",
-       "port": "5432"
-   }
-   ```
-
-## Scripts Overview
-
-### Main Scripts
-
-1. **`noapi.py`** - Main scraper
-   - Scrapes book details from URLs listed in `book_urls.txt`
-   - Collects reviews, ratings, descriptions, and awards
-   - Stores data in PostgreSQL database
-
-2. **`remaining_reviews.py`** - Review enhancer
-   - Automatically collects additional reviews for books that need more
-   - Prioritizes popular books (based on star distribution)
-   - Avoids duplicate reviews
-
-3. **`scheduler.py`** - Automated scheduler (NEW!)
-   - Runs scrapers on a scheduled basis
-   - Configurable scheduling intervals
-   - Comprehensive logging and error handling
-
-4. **`update_authors.py`** - Database maintenance
-   - Updates author information in the database
-
-### Utility Scripts
-
-- **`username.py`** - Finds Goodreads reviewers by review snippet
-
-## Using the Scheduler
-
-### Quick Start
-
-1. **Configure the schedule** (optional)
-
-   Edit `scheduler_config.json` to customize when scrapers run:
+   Edit `config.json` to match your PostgreSQL credentials:
 
    ```json
    {
-       "main_scraper": {
-           "enabled": true,
-           "schedule_time": "02:00",
-           "schedule_type": "daily"
-       },
-       "review_enhancer": {
-           "enabled": true,
-           "schedule_time": "04:00",
-           "schedule_type": "daily"
+       "database": {
+           "host": "localhost",
+           "database": "my_goodreads_db",
+           "user": "your_username",
+           "password": "your_password",
+           "port": "5432"
        }
    }
    ```
 
-2. **Run the scheduler**
-   ```bash
-   python scheduler.py
-   ```
+## Quick Start
 
-   The scheduler will run continuously and execute your scrapers at the configured times.
+The scraper has three main modes of operation:
 
-3. **Run in background** (Linux/Mac)
-   ```bash
-   nohup python scheduler.py > scheduler_output.log 2>&1 &
-   ```
+### 1. Run Main Scraper Once
+Scrapes books from URLs listed in `book_urls.txt`:
+```bash
+python main.py scrape
+```
 
-4. **Stop the scheduler**
-   - Press `Ctrl+C` if running in foreground
-   - Or find and kill the process: `pkill -f scheduler.py`
+### 2. Run Review Enhancer Once
+Collects additional reviews for books that need more:
+```bash
+python main.py enhance
+```
 
-### Configuration Options
+### 3. Run Automated Scheduler
+Runs scrapers on a schedule continuously:
+```bash
+python main.py schedule
+```
 
-#### Schedule Types
+## Configuration
 
-1. **Daily** - Run at a specific time each day
-   ```json
-   {
-       "schedule_type": "daily",
-       "schedule_time": "02:00"
-   }
-   ```
+All settings are managed in `config.json`:
 
-2. **Hourly** - Run every N hours
-   ```json
-   {
-       "schedule_type": "hourly",
-       "interval_hours": 6
-   }
-   ```
-
-3. **Weekly** - Run on a specific day and time
-   ```json
-   {
-       "schedule_type": "weekly",
-       "schedule_time": "02:00",
-       "day_of_week": "monday"
-   }
-   ```
-
-#### Logging Configuration
-
+### Database Settings
 ```json
 {
-    "logging": {
-        "level": "INFO",
-        "log_file": "scheduler.log",
-        "max_log_size_mb": 10
+    "database": {
+        "host": "localhost",
+        "database": "my_goodreads_db",
+        "user": "postgres",
+        "password": "your_password",
+        "port": "5432"
     }
 }
 ```
 
-## Manual Usage
+### Scraping Settings
+```json
+{
+    "scraping": {
+        "book_urls_file": "book_urls.txt",
+        "min_delay": 5,
+        "max_delay": 10,
+        "page_load_timeout": 60
+    }
+}
+```
 
-### Running Individual Scripts
+### Scheduling Settings
 
-1. **Main Scraper**
-   ```bash
-   python noapi.py
-   ```
-   Requires: `book_urls.txt` file with Goodreads book URLs (one per line)
+#### Daily Schedule (Default)
+```json
+{
+    "scheduling": {
+        "scraper": {
+            "enabled": true,
+            "schedule_type": "daily",
+            "schedule_time": "02:00"
+        },
+        "enhancer": {
+            "enabled": true,
+            "schedule_type": "daily",
+            "schedule_time": "04:00"
+        }
+    }
+}
+```
 
-2. **Review Enhancer**
-   ```bash
-   python remaining_reviews.py
-   ```
-   Automatically identifies books needing more reviews
+#### Hourly Schedule
+```json
+{
+    "scheduling": {
+        "scraper": {
+            "enabled": true,
+            "schedule_type": "hourly",
+            "interval_hours": 6
+        }
+    }
+}
+```
 
-3. **Update Authors**
-   ```bash
-   python update_authors.py
-   ```
+#### Weekly Schedule
+```json
+{
+    "scheduling": {
+        "scraper": {
+            "enabled": true,
+            "schedule_type": "weekly",
+            "schedule_time": "02:00",
+            "day_of_week": "monday"
+        }
+    }
+}
+```
+
+### Logging Settings
+```json
+{
+    "logging": {
+        "level": "INFO",
+        "log_file": "scraper.log"
+    }
+}
+```
+
+## Usage Examples
+
+### One-Time Scraping
+```bash
+# Scrape books from book_urls.txt
+python main.py scrape
+
+# Enhance reviews for existing books
+python main.py enhance
+```
+
+### Scheduled Scraping
+```bash
+# Run scheduler in foreground
+python main.py schedule
+
+# Run scheduler in background (Linux/Mac)
+nohup python main.py schedule > output.log 2>&1 &
+
+# Run scheduler in background (using screen)
+screen -dmS goodreads python main.py schedule
+```
+
+### Stop the Scheduler
+```bash
+# If running in foreground
+Press Ctrl+C
+
+# If running in background
+pkill -f "python main.py schedule"
+```
 
 ## Scheduling with System Tools
 
@@ -201,7 +214,7 @@ A comprehensive web scraper for Goodreads that automatically collects book infor
    Type=simple
    User=your_username
    WorkingDirectory=/path/to/goodreads-scraper
-   ExecStart=/usr/bin/python3 /path/to/goodreads-scraper/scheduler.py
+   ExecStart=/usr/bin/python3 /path/to/goodreads-scraper/main.py schedule
    Restart=on-failure
    RestartSec=10
 
@@ -223,17 +236,17 @@ A comprehensive web scraper for Goodreads that automatically collects book infor
 
 ### Using cron (Linux/Mac)
 
-Alternative to using `scheduler.py`, you can use cron:
+Alternative to using the built-in scheduler:
 
 ```bash
 # Edit crontab
 crontab -e
 
 # Run main scraper daily at 2 AM
-0 2 * * * cd /path/to/goodreads-scraper && python3 noapi.py
+0 2 * * * cd /path/to/goodreads-scraper && python3 main.py scrape
 
 # Run review enhancer daily at 4 AM
-0 4 * * * cd /path/to/goodreads-scraper && python3 remaining_reviews.py
+0 4 * * * cd /path/to/goodreads-scraper && python3 main.py enhance
 ```
 
 ## Monitoring
@@ -241,14 +254,14 @@ crontab -e
 ### View Logs
 
 ```bash
-# View scheduler logs
-tail -f scheduler.log
+# View logs in real-time
+tail -f scraper.log
 
 # View recent log entries
-tail -n 100 scheduler.log
+tail -n 100 scraper.log
 
 # Search for errors
-grep ERROR scheduler.log
+grep ERROR scraper.log
 ```
 
 ### Database Queries
@@ -336,18 +349,22 @@ Enable debug logging by editing `scheduler_config.json`:
 
 ```
 goodreads-scraper/
-├── noapi.py                    # Main scraper
-├── remaining_reviews.py        # Review enhancer
-├── scheduler.py                # Automated scheduler
-├── scheduler_config.json       # Scheduler configuration
-├── update_authors.py           # Author updater
-├── update_clean.py             # SQL cleaning scripts
-├── username.py                 # Reviewer finder
+├── main.py                     # All-in-one script (scraper + enhancer + scheduler)
+├── config.json                 # Configuration file
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
-├── book_urls.txt              # List of book URLs to scrape
-├── scheduler.log              # Scheduler logs (created on run)
-└── debug/                     # Debug HTML files (created on run)
+├── book_urls.txt              # List of book URLs to scrape (create this file)
+├── scraper.log                # Logs (created on run)
+├── debug/                     # Debug HTML files (created on run)
+│
+├── Legacy scripts (still functional but not needed with main.py):
+├── noapi.py                   # Original main scraper
+├── remaining_reviews.py       # Original review enhancer
+├── scheduler.py               # Original standalone scheduler
+├── scheduler_config.json      # Old scheduler config
+├── update_authors.py          # Author updater utility
+├── update_clean.py            # SQL cleaning scripts
+└── username.py                # Reviewer finder utility
 ```
 
 ## Contributing
@@ -358,17 +375,50 @@ Feel free to submit issues, fork the repository, and create pull requests for an
 
 This project is for educational purposes. Please respect Goodreads' Terms of Service and robots.txt when scraping.
 
+## How It Works
+
+### Scraping Process
+1. **Main Scraper**: Reads URLs from `book_urls.txt`, scrapes book details and reviews, stores in database
+2. **Review Enhancer**: Queries database for books with insufficient reviews, scrapes additional reviews
+3. **Scheduler**: Runs the above operations on a configurable schedule
+
+### Smart Review Collection
+- Reviews are automatically scaled based on book popularity (star distribution)
+- Popular books (700k+ stars): 500 reviews
+- Very popular (500k+ stars): 300 reviews
+- Popular (300k+ stars): 250 reviews
+- Standard books: 100 reviews
+
+### Duplicate Prevention
+- Books already in database are skipped
+- Reviews are deduplicated by text content
+- Database handles conflicts with ON CONFLICT DO NOTHING
+
 ## Notes
 
 - The scraper uses Selenium with headless Chrome for JavaScript rendering
 - Database schema should be created before running the scrapers
 - Review counts are automatically adjusted based on book popularity (star distribution)
-- The scheduler will create default configuration if none exists
+- All configuration is centralized in `config.json`
+- Logs are written to `scraper.log` by default
+
+## Migration from Old Scripts
+
+If you were using the older separate scripts (`noapi.py`, `remaining_reviews.py`, `scheduler.py`), you can easily migrate:
+
+1. Copy your database credentials from the old scripts to `config.json`
+2. Use the new commands:
+   - Old: `python noapi.py` → New: `python main.py scrape`
+   - Old: `python remaining_reviews.py` → New: `python main.py enhance`
+   - Old: `python scheduler.py` → New: `python main.py schedule`
+
+The old scripts will continue to work, but `main.py` provides a cleaner, unified interface.
 
 ## Support
 
 For issues or questions, please check:
-1. The logs in `scheduler.log`
-2. Database connection settings
+1. The logs in `scraper.log`
+2. Database connection settings in `config.json`
 3. Chrome/ChromeDriver installation
 4. Python package versions in `requirements.txt`
+5. Book URLs file (`book_urls.txt`) exists and has valid URLs

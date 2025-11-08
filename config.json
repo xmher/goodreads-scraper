@@ -1,0 +1,36 @@
+{
+    "database": {
+        "host": "localhost",
+        "database": "my_goodreads_db",
+        "user": "postgres",
+        "password": "123",
+        "port": "5432"
+    },
+    "scraping": {
+        "book_urls_file": "book_urls.txt",
+        "min_delay": 5,
+        "max_delay": 10,
+        "page_load_timeout": 60
+    },
+    "scheduling": {
+        "enabled": false,
+        "scraper": {
+            "enabled": true,
+            "schedule_type": "daily",
+            "schedule_time": "02:00",
+            "interval_hours": null,
+            "day_of_week": null
+        },
+        "enhancer": {
+            "enabled": true,
+            "schedule_type": "daily",
+            "schedule_time": "04:00",
+            "interval_hours": null,
+            "day_of_week": null
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "log_file": "scraper.log"
+    }
+}
