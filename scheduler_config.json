@@ -1,0 +1,21 @@
+{
+    "main_scraper": {
+        "enabled": true,
+        "schedule_time": "02:00",
+        "schedule_type": "daily",
+        "interval_hours": null,
+        "day_of_week": null
+    },
+    "review_enhancer": {
+        "enabled": true,
+        "schedule_time": "04:00",
+        "schedule_type": "daily",
+        "interval_hours": null,
+        "day_of_week": null
+    },
+    "logging": {
+        "level": "INFO",
+        "log_file": "scheduler.log",
+        "max_log_size_mb": 10
+    }
+}
